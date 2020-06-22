@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title>主页</title>
+		<script type="text/javascript" src="js/vue.js"></script>
+		<script type="text/javascript" src="js/vue_resource.js"></script>
+		<!-- Bootstrap core CSS-->
+		<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="css/bootstrap.css" />
+		<link rel="stylesheet" href="css/bootstrap.css" />
+		<!-- Custom fonts for this template-->
+		<link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+		<!-- Page level plugin CSS-->
+		<link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+		<!-- Custom styles for this template-->
+		<link href="css/sb-admin.css" rel="stylesheet">
+		<style>
+			body{
+				background-image: url(image/1.jpg);
+				background-size: 100% 100%;
+				background-repeat: no-repeat;
+			}
+			input{
+				background: none;
+			}
+			select{
+				background: none;
+			}
+			.button {
+				width: 80px;
+			}
+			
+			a {
+				cursor: pointer;
+			}
+			
+			#se {
+				height: 30px;
+			}
+			
+			#info {
+				height: 30px;
+			}
+			
+			button {
+				height: 30px;
+				background: none;
+				border: 1px solid gainsboro;
+			}
+			.tr:hover{
+				background-color: gainsboro;
+			}
+		</style>
+	</head>
+
+	<body style="padding: 40px;">
+		<div class="container" id="ad">
+			<!-- Breadcrumbs-->
+			<ol class="breadcrumb" style="height: 50px; background: none;">
+				<li class="breadcrumb-item" style="margin-top: 10px;">
+					<b>欢迎管理员</b>&nbsp;<strong style="font-size: 1.5em;">{{username}}</strong>
+					<a class="nav-link" data-toggle="modal" data-target="#exampleModal" style="margin-left: 950px; margin-top: -25px;">
+						<i class="fa fa-fw fa-sign-out"></i>注销</a>
+				</li>
+			</ol>
+
+			<!-- Example DataTables Card-->
+			<div class="card mb-3" style="background: none;">
+				<div class="card-header">
+					<i class="fa fa-table"></i>详细信息</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<div style="text-align: center; padding: 10px;">
+							<span>请选择查询条件：</span>&nbsp;&nbsp;
+							<select id="se" v-model="selectcondition">
+								<option>全部</option>
+								<option>姓名</option>
+								<option>电话</option>
+								<option>gitlab</option>
+								<option>邮箱</option>
+								<option>成绩</option>
+								<option>学分</option>
+							</select>
+							<input type="text" id="info" name="info" v-model="info" placeholder="请输入查询信息" /> <button @click="select1()">查询</button>
+							<button type="reset" @click="reset1()">重置</button>
+						</div>
+						<div style="padding: 10px; float: left;">
+							<button><a class="button" data-toggle="modal" data-target="#insert" @click="add1()">新增</a></button>
+							<button @click="delete1()"><a>删除</a></button>
+							<button><a class="button" data-toggle="modal" data-target="#update" @click="update1()">修改</a></button>
+						</div>
+
+						<div style="float: left; margin-left: 410px; margin-top: 10px;">
+							<form enctype="multipart/form-data" style="float: left;">
+								<input type="file" id="file" />
+							</form>
+							<button onclick="uploadFile()">导入</button>
+						</div>
+
+						<div style="float: left; margin-left: 950px; margin-top: -40px;">
+							<button onclick="downloadfile()">导出</button>
+						</div>
+
+						<table class="table table-bordered" id="Table" width="100%" cellspacing="0">
+							<thead>
+								<tr>
+									<td><input type="checkbox" name="deleteusernameall" onclick="allelection()" />
+										<input type="hidden" name="deleteuserNameBox" v-model="deleteUserNameBox" /></td>
+									<th>姓名</th>
+									<th>电话</th>
+									<th>gitlab</th>
+									<th>邮箱</th>
+									<th>成绩 <span class="glyphicon glyphicon-sort" @click="chengjipaixu()"></span> </th>
+									<th>学分 <span class="glyphicon glyphicon-sort" @click="xuefenpaixu()"></span> </th>
+								</tr>
+							</thead>
+
+							<tbody v-for="x in currentData">
+								<tr class="tr">
+									<td><input type="checkbox" name="deleteusername" onclick="election()" :value="x.userName" /></td>
+									<td>{{x.chineseName}}</td>
+									<td>{{x.phone}}</td>
+									<td>{{x.gitAccount}}</td>
+									<td>{{x.email}}</td>
+									<td>{{x.score}}</td>
+									<td>{{x.credit}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div>
+						<ul style="list-style: none; display: flex;flex-direction: row-reverse; font-weight: bolder;">
+							<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 40px; height: 25px; text-align: center;">
+								<a><span class="glyphicon glyphicon-chevron-right" @click="nextPage()" style="margin-top: 5px;"></span></a>
+							</li>
+							<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 30px; height: 25px; text-align: center;">页</li>
+							<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 60px; height: 25px; text-align: center;">
+								<input type="text" style="width: 55px;border: none; text-align: center; color: red;" @change="enterPage()"
+								 v-model="currentPage" />
+							</li>
+							<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 80px; height: 25px; text-align: center;">跳转至</li>
+							<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 80px; height: 25px; text-align: center;">共
+								<input style="width: 20px; border: none; text-align: center; color: red;" type="text" v-model="countPage"
+								 readonly="true" />页</li>
+							<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 40px; height: 25px; text-align: center;">
+								<a><span class="glyphicon glyphicon-chevron-left" @click="prevPage()" style="margin-top: 5px;"></span></a>
+							</li>
+						</ul>
+
+					</div>
+				</div>
+				<div class="card-footer small text-muted"></div>
+			</div>
+			<!-- Scroll to Top Button-->
+			<a class="scroll-to-top rounded" href="#ad">
+				<i class="fa fa-angle-up"></i>
+			</a>
+			<!-- 退出-->
+			<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+			 aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content" style="background: none; background-image: url(image/1.jpg);">
+						<div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">您确定退出吗?</h5>
+							<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span>
+							</button>
+						</div>
+						<div class="modal-body">如果您准备结束当前会话，请在下面选择“注销”。</div>
+						<div class="modal-footer">
+							<button class="btn btn-secondary" type="button" data-dismiss="modal">取消</button>
+							<a class="btn btn-primary" @click="remove()">注销</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!--新增-->
+			<div class="modal fade" id="insert" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
+			 style="pointer-events: auto;background: none;">
+				<div class="modal-dialog" role="document" style="margin-top: 80px;">
+					<div class="modal-content" style="background: none; background-image: url(image/1.jpg);">
+						<div class="modal-header">
+							<h3 class="modal-title" id="exampleModalLabel">新增</h3>
+							<button style="margin-top: -10px;" class="close" type="button" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span>
+							</button>
+						</div>
+						<div class="modal-body" style="background: none;">
+							<form>
+								<div class="form-group">
+									<div class="form-row">
+										<div class="col-md-6">
+											<label for="exampleInputName">姓名</label>
+
+											<input class="form-control" id="addname" type="text" aria-describedby="nameHelp" readonly="true" />
+										</div>
+										<div class="col-md-6">
+											<label for="exampleInputLastName">电话</label>
+											<span id="s1"></span>
+											<input @blur="ver1()" class="form-control" id="addtel" type="text" aria-describedby="nameHelp" v-model="xztel" />
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="form-row">
+										<div class="col-md-6">
+											<label for="exampleInputName">gitlab账号</label>
+											<span id="s2"></span>
+											<input @blur="ver2()" class="form-control" id="addpw" type="text" aria-describedby="nameHelp" v-model="xzpw" />
+										</div>
+										<div class="col-md-6">
+											<label for="exampleInputLastName">邮箱</label>
+											<input class="form-control" id="addchineseName" type="text" aria-describedby="nameHelp" readonly="true" />
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="form-row">
+										<div class="col-md-6">
+											<label for="exampleInputName">成绩</label>
+											<span id="s3"></span>
+											<input @blur="ver3()" class="form-control" id="addgrade" type="text" aria-describedby="nameHelp" v-model="xzgrade" />
+										</div>
+										<div class="col-md-6">
+											<label for="exampleInputLastName">学分</label>
+											<span id="s4"></span>
+											<input @blur="ver4()" class="form-control" id="addcredit" type="text" aria-describedby="nameHelp" v-model="xzcredit" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="modal-footer">
+							<button class="btn btn-secondary" type="button" data-dismiss="modal">取消</button>
+							<button class="btn btn-primary" @click="addgc()">确定</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--修改-->
+			<div class="modal fade" id="update" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document" style="margin-top: 80px;">
+					<div class="modal-content" style="background: none; background-image: url(image/1.jpg);">
+						<div class="modal-header">
+							<h3 class="modal-title" id="exampleModalLabel">修改</h3>
+							<button style="margin-top: -10px;" class="close" type="button" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<form>
+								<div class="form-group">
+									<div class="form-row">
+										<div class="col-md-6">
+											<label for="exampleInputName">姓名</label>
+											<input class="form-control" id="upname" type="text" aria-describedby="nameHelp" readonly="true" />
+										</div>
+										<div class="col-md-6">
+											<label for="exampleInputLastName">电话</label>
+											<span id="l1"></span>
+											<input @blur="up1()" class="form-control" id="uptel" type="text" aria-describedby="nameHelp" v-model="uptel" />
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="form-row">
+										<div class="col-md-6">
+											<label for="exampleInputName">gitlab账号</label>
+											<span id="l2"></span>
+											<input @blur="up2()" class="form-control" id="upgitlab" type="text" aria-describedby="nameHelp" v-model="upgitlab" />
+										</div>
+										<div class="col-md-6">
+											<label for="exampleInputLastName">邮箱</label>
+											<input class="form-control" id="upemail" type="email" aria-describedby="nameHelp" readonly="true" />
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="form-row">
+										<div class="col-md-6">
+											<label for="exampleInputName">成绩</label>
+											<span id="l3"></span>
+											<input @blur="up3()" class="form-control" id="upgrade" type="text" aria-describedby="nameHelp" v-model="upgrade" />
+										</div>
+										<div class="col-md-6">
+											<label for="exampleInputLastName">学分</label>
+											<span id="l4"></span>
+											<input @blur="up4()" class="form-control" id="upcredit" type="text" aria-describedby="nameHelp" v-model="upcredit" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="modal-footer">
+							<button class="btn btn-secondary" type="button" data-dismiss="modal" onclick="javascript:window.location.reload();">取消</button>
+							<button class="btn btn-primary" @click="updatexx()">确定</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Bootstrap core JavaScript-->
+		<script src="vendor/jquery/jquery.min.js"></script>
+		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<script type="text/javascript" src="js/bootstrap.js"></script>
+		<!-- Core plugin JavaScript-->
+		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+		<!-- Page level plugin JavaScript-->
+		<script src="vendor/datatables/jquery.dataTables.js"></script>
+		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+		<!-- Custom scripts for all pages-->
+		<script src="js/sb-admin.min.js"></script>
+		<!-- Custom scripts for this page-->
+		<script src="js/sb-admin-datatables.min.js"></script>
+
+		<script>
+			onload = function() {
+				document.getElementById("se").selectedIndex = 0;
+			}
+		</script>
+
+		<script type="text/javascript">
+			var url = "http://localhost:8082/";
+			/*导出*/
+			function downloadfile() {
+				//统计导出数据,导出选中的,若无导出所有
+				var deleteusername = document.getElementsByName("deleteusername");
+				var checkval = [];
+				var countchecked = 0
+				for (var i = 0; i < deleteusername.length; i++) {
+					if (deleteusername[i].checked) {
+						checkval.push(deleteusername[i].value);
+						countchecked++;
+					}
+				}
+				if (countchecked == 0) {
+					window.location.href = url + "UserExcelDownloads";
+					alert("导出成功");
+				} else {
+					vm.exportchecked();
+					window.location.href = url + "UserExcelDownloads1";
+					alert("导出成功");
+				}
+			}
+
+			<!--导入-->
+			function uploadFile() {
+				var file = document.getElementById("file").files[0];
+				var fileName = document.getElementById("file").files[0].name;
+				console.log(fileName);
+				var formData = new FormData();
+				formData.append("file", file);
+				if (fileName.indexOf("xlsx") != -1 || fileName.indexOf("xls") != -1) {
+					$.ajax({
+						type: "post",
+						url: url + "import",
+						data: formData,
+						async: true,
+						//不设置上传类型
+						contentType: false,
+						//不处理数据
+						processData: false,
+						dataType: "json",
+						success: function(res) {
+							if (res.success == true) {
+								alert(res.msg);
+								location.href = "Administrator.html";
+							}
+							if (res.success == false) {
+								alert(res.msg);
+								location.href = "Administrator.html";
+							}
+						}
+					})
+				} else {
+					alert("文件类型不匹配!");
+				}
+			}
+		</script>
+		<script type="text/javascript">
+			var isCheckAll = true;
+			var deleteusernameall = document.getElementsByName("deleteusernameall");
+			var deleteusername = document.getElementsByName("deleteusername");
+
+			function allelection() {
+				if (isCheckAll) {
+					for (var i = 0; i < deleteusername.length; i++) {
+						deleteusername[i].checked = true;
+					}
+					isCheckAll = false;
+				} else {
+					for (var i = 0; i < deleteusername.length; i++) {
+						deleteusername[i].checked = false;
+					}
+					isCheckAll = true;
+				}
+			}
+
+			function election() {
+				deleteusernameall[0].checked = false;
+				isCheckAll = true;
+			}
+		</script>
+
+		<script>
+			var url = "http://localhost:8082/";
+			var veritel = /^[1][3,4,5,7,8][0-9_]{9}$/; //电话
+			var verigitlab = /^\w{10,25}$/; //gitlab
+			var verigrade = /^[0-9.]{1,5}$/;
+			var vericredit = /^[0-9.]{1,2}$/;
+			var info = /^(?:(?!.*(%)).*)/;
+
+			var veri1 = false;
+			var veri2 = false;
+			var veri3 = false;
+			var veri4 = false;
+			var vm = new Vue({
+				el: '#ad',
+				data: {
+					//所有数据
+					msg: [],
+					//用户名批量删除数据
+					deleteUserNameBox: [],
+					//查询条件项
+					selectcondition: "",
+					//查询条件框
+					info: "",
+					//总页数
+					countPage: "",
+					//当前页数,默认为1
+					currentPage: 1,
+					//每页数量,默认为10
+					pageSize: 10,
+					//当前内容
+					currentData: [],
+					//选中复选框数量
+					selection: 0,
+					//单个复选框选中位置
+					wzindex: -1,
+					//单个复选框选中数据
+					addData: [],
+					//xz电话
+					xztel: "",
+					//xzgitlab账号
+					xzpw: "",
+					//xz成绩
+					xzgrade: "",
+					//xz学分
+					xzcredit: "",
+					//up电话
+					uptel: "",
+					//upgitlab账号
+					upgitlab: "",
+					//up成绩
+					upgrade: "",
+					//up学分
+					upcredit: "",
+					//文件
+					//file:null,
+					//搜索非法输入
+					illegal: '',
+					//排序规则
+					paixu: 0,
+					//用户名
+					username: '',
+				},
+				mounted: function() {
+					this.$nextTick(function() {
+						this.show()
+					})
+				},
+				http: {
+					root: '/',
+					headers: {
+						token: localStorage.getItem("token")
+					}
+				},
+				methods: {
+					//首页展示
+					show() {
+						this.$http.post(url + 'show').then(
+							function(res) {
+								var result = res.body;
+								if (localStorage.getItem("token") == null) {
+									alert("身份信息失效，请重新登录");
+									location.href = "login.html";
+								}
+
+								vm.username = result.userInfo.username;
+
+								vm.msg = result.detail;
+								vm.countPage = Math.ceil(vm.msg.length / vm.pageSize);
+								vm.countPage = vm.countPage == 0 ? 1 : vm.countPage;
+								console.log(result.msg);
+								this.getcurrentData();
+							},
+							function() {
+								alert("身份信息失效，请重新登录");
+								location.href = "login.html";
+								console.log("连接失败！");
+							}
+						)
+					},
+					//当前页数据
+					getcurrentData() {
+						var begin = (vm.currentPage - 1) * vm.pageSize;
+						var end = vm.currentPage * vm.pageSize;
+						if (vm.msg.length < end) {
+							end = vm.msg.length;
+						}
+						vm.currentData = vm.msg.slice(begin, end);
+						console.log(vm.currentData);
+					},
+					//上一页
+					prevPage() {
+						if (vm.currentPage <= 1) {
+							//alert("这是首页");
+						} else {
+							vm.currentPage--;
+							this.getcurrentData();
+						}
+					},
+					//下一页
+					nextPage() {
+						if (vm.currentPage >= vm.countPage) {
+							//alert("这是尾页");
+						} else {
+							vm.currentPage++;
+							this.getcurrentData();
+						}
+					},
+					//页码跳转
+					enterPage() {
+						if (vm.currentPage >= 1 && vm.currentPage <= vm.countPage) {
+							this.getcurrentData();
+						} else {
+							vm.currentPage = 1;
+							this.getcurrentData();
+							alert("输入错误！");
+						}
+					},
+					//查询
+					select1() {
+						if (vm.selectcondition == "" || vm.info == "") {
+							vm.selectcondition = "";
+							vm.info = "";
+							alert("请给出查询项和条件。");
+						}
+						if (info.test(vm.info) == false) {
+							alert("非法输入");
+						} else {
+							this.$http.post(url + "selectTest", {
+								selectcondition: vm.selectcondition,
+								info: vm.info,
+							}, {
+								emulateJSON: true,
+							}).then(
+								function(res) {
+									var result = res.body;
+									vm.msg = result.detail;
+									vm.countPage = Math.ceil(vm.msg.length / vm.pageSize);
+									vm.countPage = vm.countPage == 0 ? 1 : vm.countPage;
+									vm.currentPage = 1;
+									/* vm.illegal=result.illegal;
+									console.log(vm.illegal);
+									if(vm.illegal == false){
+										alert("非法输入!")
+									} */
+									console.log(result.msg);
+									this.getcurrentData();
+								},
+								function() {
+									alert("查询失败！");
+								}
+							)
+						}
+					},
+					//重置
+					reset1() {
+						vm.selectcondition = "";
+						vm.info = "";
+					},
+					//选中复选框的位置、数量
+					getaddData() {
+						var deleteusername = document.getElementsByName("deleteusername");
+						for (var i = 0; i < deleteusername.length; i++) {
+							if (deleteusername[i].checked) {
+								vm.selection++;
+								vm.wzindex = i;
+							}
+						}
+					},
+					//新增
+					add1() {
+						this.getaddData();
+						if (vm.selection == 1) {
+							vm.addData = vm.currentData[vm.wzindex];
+							vm.selection = 0;
+							vm.wzindex = -1;
+							document.getElementById("addname").value = vm.addData.userName;
+							vm.xztel = vm.addData.phone;
+							vm.xzpw = vm.addData.gitAccount;
+							document.getElementById("addchineseName").value = vm.addData.email;
+							if (vm.addData.score != null && vm.addData.credit != null) {
+								vm.xzgrade = vm.addData.score;
+								vm.xzcredit = vm.addData.credit;
+							} else {
+								vm.xzgrade = null;
+								vm.xzcredit = null;
+							}
+							this.ver1();
+							this.ver2();
+							this.ver3();
+							this.ver4();
+						} else {
+							location.href = "Administrator.html";
+							alert("只能操作单个记录。");
+						}
+					},
+					//验证
+					ver1() {
+						if (!veritel.test(vm.xztel)) {
+							document.getElementById("s1").innerHTML = "电话格式不正确！";
+							document.getElementById("s1").style.color = "red";
+						} else {
+							document.getElementById("s1").innerHTML = "√";
+							document.getElementById("s1").style.color = "green";
+
+						}
+					},
+					ver2() {
+						if (!verigitlab.test(vm.xzpw)) {
+							document.getElementById("s2").innerHTML = "gitlab格式不正确！";
+							document.getElementById("s2").style.color = "red";
+						} else {
+							document.getElementById("s2").innerHTML = "√";
+							document.getElementById("s2").style.color = "green";
+						}
+					},
+					ver3() {
+						if (!verigrade.test(vm.xzgrade)) {
+							document.getElementById("s3").innerHTML = "成绩格式不正确！";
+							document.getElementById("s3").style.color = "red";
+						} else {
+							document.getElementById("s3").innerHTML = "√";
+							document.getElementById("s3").style.color = "green";
+						}
+					},
+					ver4() {
+						if (!vericredit.test(vm.xzcredit)) {
+							document.getElementById("s4").innerHTML = "学分格式不正确！";
+							document.getElementById("s4").style.color = "red";
+						} else {
+							document.getElementById("s4").innerHTML = "√";
+							document.getElementById("s4").style.color = "green";
+						}
+					},
+					//新增成绩学分
+					addgc() {
+						/* this.ver1();
+						this.ver2();
+						this.ver3();
+						this.ver4(); */
+						if (vm.addData.score != null && vm.addData.credit != null) {
+							//location.href = "Administrator.html";
+							alert("已有成绩" + vm.addData.score + "、学分" + vm.addData.credit + "，无需添加。");
+						} else {
+							if (veritel.test(vm.xztel) && verigitlab.test(vm.xzpw) && verigrade.test(vm.xzgrade) && vericredit.test(vm.xzcredit)) {
+								this.$http.post(url + "addTest", {
+									xzusername: vm.addData.userName,
+									xztel: vm.xztel,
+									xzpw: vm.xzpw,
+									xzgrade: vm.xzgrade,
+									xzcredit: vm.xzcredit,
+								}, {
+									emulateJSON: true,
+								}).then(
+									function(res) {
+										var result = res.body;
+										if (result.success == true) {
+											alert("添加成功！");
+											location.href = "Administrator.html";
+										} else {
+											alert("添加失败！");
+										}
+									},
+									function() {
+										alert("添加失败！");
+									}
+								)
+							}
+						}
+					},
+					//修改
+					update1() {
+						this.getaddData();
+						if (vm.selection == 1) {
+							vm.addData = vm.currentData[vm.wzindex];
+							vm.selection = 0;
+							vm.wzindex = -1;
+							document.getElementById("upname").value = vm.addData.userName;
+							vm.uptel = vm.addData.phone;
+							vm.upgitlab = vm.addData.gitAccount;
+							document.getElementById("upemail").value = vm.addData.email;
+							vm.upgrade = vm.addData.score;
+							vm.upcredit = vm.addData.credit;
+							this.up1();
+							this.up2();
+							this.up3();
+							this.up4();
+						} else {
+							location.href = "Administrator.html";
+							alert("只能操作单个记录。");
+						}
+					},
+					up1() {
+						if (!veritel.test(vm.uptel)) {
+							document.getElementById("l1").innerHTML = "电话格式不正确！";
+							document.getElementById("l1").style.color = "red";
+						} else {
+							document.getElementById("l1").innerHTML = "√";
+							document.getElementById("l1").style.color = "green";
+
+						}
+					},
+					up2() {
+						if (!verigitlab.test(vm.upgitlab)) {
+							document.getElementById("l2").innerHTML = "gitlab格式不正确！";
+							document.getElementById("l2").style.color = "red";
+						} else {
+							document.getElementById("l2").innerHTML = "√";
+							document.getElementById("l2").style.color = "green";
+						}
+					},
+					up3() {
+						if (!verigrade.test(vm.upgrade)) {
+							document.getElementById("l3").innerHTML = "成绩格式不正确！";
+							document.getElementById("l3").style.color = "red";
+						} else {
+							document.getElementById("l3").innerHTML = "√";
+							document.getElementById("l3").style.color = "green";
+						}
+					},
+					up4() {
+						if (!vericredit.test(vm.upcredit)) {
+							document.getElementById("l4").innerHTML = "学分格式不正确！";
+							document.getElementById("l4").style.color = "red";
+						} else {
+							document.getElementById("l4").innerHTML = "√";
+							document.getElementById("l4").style.color = "green";
+						}
+					},
+					//修改信息
+					updatexx() {
+						/* this.up1();
+						this.up2();
+						this.up3();
+						this.up4(); */
+						if (veritel.test(vm.uptel) && verigitlab.test(vm.upgitlab) && verigrade.test(vm.upgrade) && vericredit.test(vm.upcredit)) {
+							this.$http.post(url + "updateTest", {
+								upusername: vm.addData.userName,
+								uptel: vm.uptel,
+								upgitlab: vm.upgitlab,
+								upgrade: vm.upgrade,
+								upcredit: vm.upcredit,
+							}, {
+								emulateJSON: true,
+							}).then(
+								function(res) {
+									var result = res.body;
+									if (result.success == true) {
+										alert("修改成功！");
+										location.href = "Administrator.html";
+									} else {
+										alert("修改失败！");
+									}
+								},
+								function() {
+									alert("修改失败！");
+								}
+							)
+						}
+					},
+					//删除
+					delete1() {
+						var deleteusername = document.getElementsByName("deleteusername");
+						var checkval = [];
+						var countchecked = 0
+						for (var i = 0; i < deleteusername.length; i++) {
+							if (deleteusername[i].checked) {
+								checkval.push(deleteusername[i].value);
+								countchecked++;
+							}
+						}
+						if (countchecked == 0) {
+							alert("请选择执行删除操作的记录。");
+						} else {
+							//alert("管理员用户不可删除.");
+							vm.deleteUserNameBox = checkval;
+							this.$http.post(url + "deleteTest", {
+								deleteUserNameBox: vm.deleteUserNameBox,
+							}, {
+								emulateJSON: true,
+							}).then(
+								function(res) {
+									var result = res.body;
+									if (result.success == true) {
+										alert("删除成功！");
+										alert(result.msg);
+										/* if (result.msg != null) {
+											alert(result.msg);
+										} */
+										location.href = "Administrator.html";
+									} else {
+										alert("删除失败！");
+									}
+								}
+							).catch((e) => {});
+						}
+					},
+					//成绩排序
+					chengjipaixu() {
+						if (vm.paixu == 0) {
+							for (var i = 0; i < vm.msg.length - 1; i++) {
+								for (var j = i + 1; j < vm.msg.length; j++) {
+									if (vm.msg[i].score > vm.msg[j].score) {
+										var qwe = vm.msg[i];
+										vm.msg[i] = vm.msg[j];
+										vm.msg[j] = qwe;
+									}
+								}
+							}
+							this.getcurrentData();
+							vm.paixu = 1;
+						} else {
+							for (var i = 0; i < vm.msg.length - 1; i++) {
+								for (var j = i + 1; j < vm.msg.length; j++) {
+									if (vm.msg[i].score < vm.msg[j].score) {
+										var qwe = vm.msg[i];
+										vm.msg[i] = vm.msg[j];
+										vm.msg[j] = qwe;
+									}
+								}
+							}
+							this.getcurrentData();
+							vm.paixu = 0;
+						}
+					},
+					//学分排序
+					xuefenpaixu() {
+						if (vm.paixu == 0) {
+							for (var i = 0; i < vm.msg.length - 1; i++) {
+								for (var j = i + 1; j < vm.msg.length; j++) {
+									if (vm.msg[i].credit > vm.msg[j].credit) {
+										var qwe = vm.msg[i];
+										vm.msg[i] = vm.msg[j];
+										vm.msg[j] = qwe;
+									}
+								}
+							}
+							this.getcurrentData();
+							vm.paixu = 1;
+						} else {
+							for (var i = 0; i < vm.msg.length - 1; i++) {
+								for (var j = i + 1; j < vm.msg.length; j++) {
+									if (vm.msg[i].credit < vm.msg[j].credit) {
+										var qwe = vm.msg[i];
+										vm.msg[i] = vm.msg[j];
+										vm.msg[j] = qwe;
+									}
+								}
+							}
+							this.getcurrentData();
+							vm.paixu = 0;
+						}
+					},
+
+					//导出
+					exportchecked() {
+						var deleteusername = document.getElementsByName("deleteusername");
+						var checkval = [];
+						for (var i = 0; i < deleteusername.length; i++) {
+							if (deleteusername[i].checked) {
+								checkval.push(deleteusername[i].value);
+							}
+						}
+						vm.deleteUserNameBox = checkval;
+						$.ajax({
+							type: "post",
+							url: url + "exportcheckedTest",
+							data: JSON.stringify(vm.deleteUserNameBox),
+							async: true,
+							//设置上传类型
+							contentType: "application/json",
+							//不处理数据
+							processData: false,
+							dataType: "json",
+							success: function(res) {
+								//console.log("111111");
+								console.log(res);
+								if (res.success == true) {
+									console.log("true");
+									//alert(res.msg);
+									//location.href = "Administrator.html";
+								}
+								if (res.success == false) {
+									console.log("false");
+									//alert(res.msg);
+									//location.href = "Administrator.html";
+								}
+							},
+							error: function(e) {
+								//console.log("222222");
+								//console.log(e);
+							}
+						});
+
+					},
+					/*注销*/
+					remove() {
+						localStorage.removeItem("token");
+						location.href = "login.html";
+					}
+				}
+			})
+		</script>
+	</body>
+
+</html>

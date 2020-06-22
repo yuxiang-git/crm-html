@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<script type="text/javascript" src="js/vue.js"></script>
+		<script type="text/javascript" src="js/vue_resource.js"></script>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title>注册</title>
+		<!-- Bootstrap core CSS-->
+		<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<!-- Custom fonts for this template-->
+		<link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+		<!-- Custom styles for this template-->
+		<link href="css/sb-admin.css" rel="stylesheet">
+		<style>
+			body{
+				background-image: url(image/1.jpg);
+				background-size: 100% 100%;
+				background-repeat: no-repeat;
+			}
+			.input{
+				background: none;
+			}
+			.font{
+				/*color:white;*/
+			}
+
+			a {
+				cursor: pointer;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="container" id="register">
+			<div class="card card-register mx-auto mt-5" style="background-color: rgba(0,0,0,0.1);">
+				<div class="card-header font">注册</div>
+				<div class="card-body">
+					<form>
+						<div class="form-group font">
+							<div class="form-group">
+								<label for="exampleInputEmail1">用户名</label>
+								<span id="i1" style="font-size: small;"></span>
+								<input @blur="register1()" v-model="userName" class="form-control input" id="username" type="text" aria-describedby="emailHelp" placeholder="以字母开头的6-12位字符,可包含下划线">
+							</div>
+							<div class="form-row">
+								<div class="col-md-6">
+									<label for="exampleInputName">密码</label>
+									<span id="i2" style="font-size: small;"></span>
+									<input @blur="register2()" v-model="passWord" placeholder="不能为纯数字的8-16位字符,区分大小写" class="form-control input" id="password" type="password" aria-describedby="nameHelp">
+								</div>
+								<div class="col-md-6">
+									<label for="exampleInputLastName">确认密码</label>
+									<span id="i3" style="font-size: small;"></span>
+									<input @blur="register3()" v-model="repassWord" placeholder="不能为纯数字的8-16位字符,区分大小写" class="form-control input" id="repassword" type="password" aria-describedby="nameHelp">
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group font">
+							<div class="form-row">
+								<div class="col-md-6">
+									<label for="exampleInputName">中文姓名</label>
+									<span id="i4" style="font-size: small;"></span>
+									<input @blur="register4()" v-model="chineseName" placeholder="4-20个字符，汉字" class="form-control input" id="name" type="text" aria-describedby="nameHelp">
+								</div>
+								<div class="col-md-6">
+									<label for="exampleInputLastName">邮箱</label>
+									<span id="i5" style="font-size: small;"></span>
+									<input @blur="register5()" v-model="email" placeholder="满足邮箱规则，名称@域名"  class="form-control input" id="email" type="email" aria-describedby="nameHelp">
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group font">
+							<div class="form-row">
+								<div class="col-md-6">
+									<label for="exampleInputName">gitlab</label>
+									<span id="i6" style="font-size: small;"></span>
+									<input @blur="register6()" v-model="gitAccount" placeholder="字母字符，可含下划线，最大长度25" class="form-control input" id="gitaccount" type="text" aria-describedby="nameHelp">
+								</div>
+								<div class="col-md-6">
+									<label for="exampleInputLastName">电话</label>
+									<span id="i7" style="font-size: small;"></span>
+									<input @blur="register7()" v-model="phone" placeholder="数字字符，支持“-”，最大长度15" class="form-control input" id="phone" type="text" aria-describedby="nameHelp">
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group font">
+							<div class="row">
+								<div class="col-md-6">
+									<label for="exampleInputEmail1">验证码</label>
+									<input class="form-control input" v-model="code" type="text">
+								</div>
+								<div class="col-md-6" style="margin-top: 30px;">
+									<a href="javascript:void(0);">
+										<img id="imgVerify" src="http://localhost:8082/getVerify" height="36" width="170" onclick="getVerify(this);">
+									</a>
+								</div>
+							</div>
+						</div>
+						<a class="btn btn-block" @click="register()" style="background-color: #E0E0E0;">注册</a>
+					</form>
+					<div class="text-center">
+						<a class="d-block small mt-3" href="login.html">登录</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Bootstrap core JavaScript-->
+		<script src="vendor/jquery/jquery.min.js"></script>
+		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<!-- Core plugin JavaScript-->
+		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+		<script>
+			var url = "http://localhost:8082/";
+			//获取验证码
+			function getVerify() {
+				// $("#imgCode").on("click", function() {
+				$("#imgVerify").attr("src", url+'getVerify?' + Math.random()); //jquery方式
+				// });
+			}
+		</script>
+
+		<script>
+			var url = "http://localhost:8082/";
+			var REuserName = /^[a-zA-Z]{1}\w{5,12}$/; //用户名正则表达式
+			var REpassWord = /(?!.*\s)(?!^[\u4e00-\u9fa5]+$)(?!^[0-9]+$)(?!^[A-z]+$)(?!^[^A-z0-9]+$)^.{8,16}$/; //密码正则表达式
+			var REchineseName = /^[\u4e00-\u9fa5]{2,6}$/; //中文名正则表达式
+			var REemail = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/; //邮箱正则表达式
+			var REgitAccount = /^\w{10,25}$/; //git账号正则表达式
+			var REphone = /^[1][3,4,5,7,8][0-9_]{9}$/; //电话正则表达式 
+			var vm = new Vue({
+				el: "#register",
+				data: {
+					result: [],
+					userName: '',
+					passWord: '',
+					repassWord: '',
+					chineseName: '',
+					email: '',
+					gitAccount: '',
+					phone: '',
+					graphCode: '', //图形验证码
+					code: ''
+
+				},
+				methods: {
+					register1() {
+						//用户名判断
+						if(vm.userName == '') {
+							document.getElementById("i1").innerHTML = "用户名不能为空";
+							document.getElementById("i1").style.color = "red";
+						}
+						if(vm.userName != '' && !REuserName.test(vm.userName)) {
+							document.getElementById("i1").innerHTML = "用户名错误";
+							document.getElementById("i1").style.color = "red";
+						}
+						if(REuserName.test(vm.userName)) {
+							document.getElementById("i1").innerHTML = "√";
+							document.getElementById("i1").style.color = "green";
+						}
+					},
+					register2() {
+						//密码判断
+						if(vm.passWord == '') {
+							document.getElementById("i2").innerHTML = "密码不能为空";
+							document.getElementById("i2").style.color = "red";
+						}
+						if(vm.passWord != '' && !REpassWord.test(vm.passWord)) {
+							document.getElementById("i2").innerHTML = "密码格式错误";
+							document.getElementById("i2").style.color = "red";
+						}
+						if(REpassWord.test(vm.passWord)) {
+							document.getElementById("i2").innerHTML = "√";
+							document.getElementById("i2").style.color = "green";
+						}
+					},
+					register3() {
+						//二次密码判断
+						if(vm.repassWord == '') {
+							document.getElementById("i3").innerHTML = "密码不能为空";
+							document.getElementById("i3").style.color = "red";
+						}
+						if(vm.repassWord != '' && !REpassWord.test(vm.repassWord)) {
+							document.getElementById("i3").innerHTML = "密码格式错误";
+							document.getElementById("i3").style.color = "red";
+						}
+						if(vm.repassWord != vm.passWord) {
+							document.getElementById("i3").innerHTML = "两次密码必须一致";
+							document.getElementById("i3").style.color = "red";
+						}
+						if(vm.repassWord != '' && REpassWord.test(vm.repassWord) && vm.repassWord == vm.passWord) {
+							document.getElementById("i3").innerHTML = "√";
+							document.getElementById("i3").style.color = "green";
+						}
+					},
+					register4() {
+						//中文姓名判断
+						if(vm.chineseName == '') {
+							document.getElementById("i4").innerHTML = "中文名不能为空";
+							document.getElementById("i4").style.color = "red";
+						}
+						if(vm.chineseName != '' && !REchineseName.test(vm.chineseName)) {
+							document.getElementById("i4").innerHTML = "中文名格式错误";
+							document.getElementById("i4").style.color = "red";
+						}
+						if(REchineseName.test(vm.chineseName)) {
+							document.getElementById("i4").innerHTML = "√";
+							document.getElementById("i4").style.color = "green";
+						}
+					},
+					register5() {
+						//邮箱判断
+						if(vm.email == '') {
+							document.getElementById("i5").innerHTML = "邮箱不能为空";
+							document.getElementById("i5").style.color = "red";
+						}
+						if(vm.email != '' && !REemail.test(vm.email)) {
+							document.getElementById("i5").innerHTML = "邮箱格式错误";
+							document.getElementById("i5").style.color = "red";
+						}
+						if(REemail.test(vm.email)) {
+							document.getElementById("i5").innerHTML = "√";
+							document.getElementById("i5").style.color = "green";
+						}
+					},
+					register6() {
+						//gitlab账号判断
+						if(vm.gitAccount == '') {
+							document.getElementById("i6").innerHTML = "git账号不能为空";
+							document.getElementById("i6").style.color = "red";
+						}
+						if(vm.gitAccount != '' && !REgitAccount.test(vm.gitAccount)) {
+							document.getElementById("i6").innerHTML = "git账号格式错误";
+							document.getElementById("i6").style.color = "red";
+						}
+						if(REgitAccount.test(vm.gitAccount)) {
+							document.getElementById("i6").innerHTML = "√";
+							document.getElementById("i6").style.color = "green";
+						}
+					},
+					register7() {
+						//电话判断
+						if(vm.phone == '') {
+							document.getElementById("i7").innerHTML = "电话不能为空";
+							document.getElementById("i7").style.color = "red";
+						}
+						if(vm.phone != '' && !REphone.test(vm.phone)) {
+							document.getElementById("i7").innerHTML = "电话格式错误";
+							document.getElementById("i7").style.color = "red";
+						}
+						if(REphone.test(vm.phone)) {
+							document.getElementById("i7").innerHTML = "√";
+							document.getElementById("i7").style.color = "green";
+						}
+					},
+					register() {
+						if(vm.userName != '' && vm.passWord != '' && vm.repassWord != '' && vm.chineseName != '' && vm.email != '' && vm.gitAccount != '' && vm.phone != '' && REuserName.test(vm.userName) && REpassWord.test(vm.passWord) && REpassWord.test(vm.repassWord) && REchineseName.test(vm.chineseName) && REemail.test(vm.email) && REgitAccount.test(vm.gitAccount) && REphone.test(vm.phone)) {
+							this.$http.post(url+"regist", {
+								userName: vm.userName,
+								passWord: vm.passWord,
+								repassWord: vm.repassWord,
+								chineseName: vm.chineseName,
+								email: vm.email,
+								gitAccount: vm.gitAccount,
+								phone: vm.phone,
+								ICode: vm.code,
+							}, {
+								emulateJSON: true
+							}).then(
+								function(res) {
+									vm.result = res.body;
+									if(vm.result.success == true) {
+										vm.result = res.body;
+										console.log(vm.result);
+										alert(vm.result.msg);
+										location.href = "login.html";
+									} else {
+										alert(vm.result.msg);
+										location.href = "register.html";
+										
+									}
+								},
+								function() {
+									console.log("连接失败！");
+									alert("请求服务器失败");
+
+								}
+							)
+						} else {
+							alert("请正确填写注册信息");
+						}
+					}
+
+				}
+			});
+		</script>
+	</body>
+
+</html>

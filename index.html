@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title>主页</title>
+		<!-- Bootstrap core CSS-->
+		<script type="text/javascript" src="js/vue.js"></script>
+		<script type="text/javascript" src="js/vue_resource.js"></script>
+		<!-- Bootstrap core CSS-->
+		<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="css/bootstrap.css" />
+		<link rel="stylesheet" href="css/bootstrap.css" />
+		<!-- Custom fonts for this template-->
+		<link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+		<!-- Page level plugin CSS-->
+		<link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+		<!-- Custom styles for this template-->
+		<link href="css/sb-admin.css" rel="stylesheet">
+	</head>
+	<style>
+		body {
+			background-image: url(image/1.jpg);
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
+		}
+		
+		input {
+			background: none;
+		}
+		
+		select {
+			background: none;
+		}
+		
+		a {
+			cursor: pointer;
+		}
+		
+		#se {
+			height: 30px;
+		}
+		
+		#info {
+			height: 30px;
+		}
+		
+		button {
+			height: 30px;
+			background: none;
+			border: 1px solid gainsboro;
+		}
+		.tr:hover{
+			background-color: gainsboro;
+		}
+	</style>
+
+	<body style="padding: 40px;">
+
+		<div class="container" id="ad">
+			<!-- Breadcrumbs-->
+			<ol class="breadcrumb" style="height: 50px; background: none;">
+				<li class="breadcrumb-item" style="margin-top: 10px;">
+					<b>欢迎用户</b>&nbsp;<strong style="font-size: 1.5em;">{{name}}</strong>
+					<a class="nav-link" data-toggle="modal" data-target="#exampleModal" style="margin-left: 950px; margin-top: -25px;">
+						<i class="fa fa-fw fa-sign-out"></i>注销</a>
+				</li>
+			</ol>
+
+			<!-- Example DataTables Card-->
+			<div class="card mb-3" style="background: none;">
+				<div class="card-header">
+					<i class="fa fa-table"></i>详细信息</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<div style="text-align: center; padding: 10px;">
+							<span>请选择查询条件：</span>&nbsp;&nbsp;
+							<select style="height: 30px;" v-model="selectcondition" id="se">
+								<option>全部</option>
+								<option>姓名</option>
+								<option>电话</option>
+								<option>gitlab</option>
+								<option>邮箱</option>
+								<option>成绩</option>
+								<option>学分</option>
+							</select>
+							<input type="text" id="info" v-model="info" placeholder="请输入查询信息" /> <button @click="select1()">查询</button> <button type="reset" @click="reset1()">重置</button>
+						</div>
+						<table class="table table-bordered" id="Table" width="100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th>姓名</th>
+									<th>电话</th>
+									<th>gitlab</th>
+									<th>邮箱</th>
+									<th>成绩 <span class="glyphicon glyphicon-sort" @click="chengjipaixu()"></span> </th>
+									<th>学分 <span class="glyphicon glyphicon-sort" @click="xuefenpaixu()"></span> </th>
+								</tr>
+							</thead>
+
+							<tbody v-for="x in currentData">
+								<tr class="tr">
+									<td>{{x.chineseName}}</td>
+									<td>{{x.phone}}</td>
+									<td>{{x.gitAccount}}</td>
+									<td>{{x.email}}</td>
+									<td>{{x.score}}</td>
+									<td>{{x.credit}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div>
+						<div>
+							<ul style="list-style: none; display: flex;flex-direction: row-reverse">
+								<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 40px; height: 25px; text-align: center;">
+									<a><span class="glyphicon glyphicon-chevron-right" @click="nextPage()" style="margin-top: 5px;"></span></a>
+									<!-- <a @click="nextPage()">下一页</a> -->
+								</li>
+								<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 30px; height: 25px; text-align: center;">页</li>
+								<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 60px; height: 25px; text-align: center;">
+									<input type="text" style="width: 55px;border: none; text-align: center; color: red;" @change="enterPage()" v-model="currentPage" />
+								</li>
+								<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 80px; height: 25px; text-align: center;">跳转至</li>
+								<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 80px; height: 25px; text-align: center;">共
+									<input style="width: 20px; border: none; text-align: center; color: red;" type="text" v-model="countPage" readonly="true" /> 页</li>
+								<li style="float: left; border: 1px solid #E9ECEF; border-radius: 10px; width: 40px; height: 25px; text-align: center;">
+									<a><span class="glyphicon glyphicon-chevron-left" @click="prevPage()" style="margin-top: 5px;"></span></a>
+									<!-- <a @click="prevPage()">上一页</a> -->
+								</li>
+							</ul>
+
+						</div>
+
+					</div>
+				</div>
+				<div class="card-footer small text-muted"></div>
+			</div>
+			<!-- Scroll to Top Button-->
+			<a class="scroll-to-top rounded" href="#ad">
+				<i class="fa fa-angle-up"></i>
+			</a>
+			<!-- Logout Modal-->
+			<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content" style="background: none; background-image: url(image/1.jpg);">
+						<div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">您确定退出吗?</h5>
+							<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span>
+							</button>
+						</div>
+						<div class="modal-body">如果您准备结束当前会话，请在下面选择“注销”。</div>
+						<div class="modal-footer">
+							<button class="btn btn-secondary" type="button" data-dismiss="modal">取消</button>
+							<a class="btn btn-primary" @click="remove()">注销</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Bootstrap core JavaScript-->
+		<script src="vendor/jquery/jquery.min.js"></script>
+		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<script type="text/javascript" src="js/bootstrap.js"></script>
+		<!-- Core plugin JavaScript-->
+		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+		<!-- Page level plugin JavaScript-->
+		<script src="vendor/datatables/jquery.dataTables.js"></script>
+		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+		<!-- Custom scripts for all pages-->
+		<script src="js/sb-admin.min.js"></script>
+		<!-- Custom scripts for this page-->
+		<script src="js/sb-admin-datatables.min.js"></script>
+
+		<script>
+			onload = function() {
+				document.getElementById("se").selectedIndex = 0;
+			}
+		</script>
+		<script>
+			var url = "http://localhost:8082/";
+			var info = /^(?:(?!.*(%)).*)/;
+			var vm = new Vue({
+				el: '#ad',
+				data: {
+					//所有数据
+					msg: [],
+					//查询条件项
+					selectcondition: "",
+					//查询条件框
+					info: "",
+					//总页数
+					countPage: "",
+					//当前页数,默认为1
+					currentPage: 1,
+					//每页数量,默认为10
+					pageSize: 10,
+					//当前内容
+					currentData: [],
+					//排序规则
+					paixu: 0,
+					//用户名
+					name: '',
+				},
+
+				mounted: function() {
+					this.$nextTick(function() {
+						this.show()
+					})
+				},
+				http: {
+					root: '/',
+					headers: {
+						token: localStorage.getItem("token")
+					}
+				},
+				methods: {
+					//首页展示
+					show() {
+						this.$http.post(url + 'showOrdi').then(
+							function(res) {
+								var result = res.body;
+								if(localStorage.getItem("token") == null) {
+									alert("身份信息失效，请重新登录");
+									location.href = "login.html";
+								}
+
+								vm.name = result.userInfo.username;
+
+								vm.msg = result.detail;
+								vm.countPage = Math.ceil(vm.msg.length / vm.pageSize);
+								vm.countPage = vm.countPage == 0 ? 1 : vm.countPage;
+								console.log(result.msg);
+								this.getcurrentData();
+							},
+							function() {
+								alert("身份信息失效，请重新登录");
+								location.href = "login.html";
+								console.log("连接失败！");
+							}
+						)
+					},
+					//当前页数据
+					getcurrentData() {
+						var begin = (vm.currentPage - 1) * vm.pageSize;
+						var end = vm.currentPage * vm.pageSize;
+						if(vm.msg.length < end) {
+							end = vm.msg.length;
+						}
+						vm.currentData = vm.msg.slice(begin, end);
+						console.log(vm.currentData);
+					},
+					//上一页
+					prevPage() {
+						if(vm.currentPage <= 1) {
+							//alert("这是首页");
+						} else {
+							vm.currentPage--;
+							this.getcurrentData();
+						}
+					},
+					//下一页
+					nextPage() {
+						if(vm.currentPage >= vm.countPage) {
+							//alert("这是尾页");
+						} else {
+							vm.currentPage++;
+							this.getcurrentData();
+						}
+					},
+					//页码跳转
+					enterPage() {
+						if(vm.currentPage >= 1 && vm.currentPage <= vm.countPage) {
+							this.getcurrentData();
+						} else {
+							vm.currentPage = 1;
+							this.getcurrentData();
+							alert("输入错误！");
+						}
+					},
+					//查询
+					select1() {
+						if(vm.selectcondition == "" || vm.info == "") {
+							vm.selectcondition = "";
+							vm.info = "";
+							alert("请给出查询项和条件。");
+						}
+						if(info.test(vm.info) == false) {
+							alert("请书写正确的查询条件。");
+						} else {
+							this.$http.post(url + "selectOrdiTest", {
+								selectcondition: vm.selectcondition,
+								info: vm.info,
+							}, {
+								emulateJSON: true,
+							}).then(
+								function(res) {
+									var result = res.body;
+									vm.msg = result.detail;
+									vm.countPage = Math.ceil(vm.msg.length / vm.pageSize);
+									vm.countPage = vm.countPage == 0 ? 1 : vm.countPage;
+									vm.currentPage = 1;
+									//console.log(result.msg);
+									this.getcurrentData();
+								},
+								function() {
+									console.log("查询失败！");
+								}
+							)
+						}
+					},
+					//重置
+					reset1() {
+						vm.selectcondition = "";
+						vm.info = "";
+					},
+					//成绩排序
+					chengjipaixu() {
+						if(vm.paixu == 0) {
+							for(var i = 0; i < vm.msg.length - 1; i++) {
+								for(var j = i + 1; j < vm.msg.length; j++) {
+									if(vm.msg[i].score > vm.msg[j].score) {
+										var qwe = vm.msg[i];
+										vm.msg[i] = vm.msg[j];
+										vm.msg[j] = qwe;
+									}
+								}
+							}
+							this.getcurrentData();
+							vm.paixu = 1;
+						} else {
+							for(var i = 0; i < vm.msg.length - 1; i++) {
+								for(var j = i + 1; j < vm.msg.length; j++) {
+									if(vm.msg[i].score < vm.msg[j].score) {
+										var qwe = vm.msg[i];
+										vm.msg[i] = vm.msg[j];
+										vm.msg[j] = qwe;
+									}
+								}
+							}
+							this.getcurrentData();
+							vm.paixu = 0;
+						}
+					},
+					//学分排序
+					xuefenpaixu() {
+						if(vm.paixu == 0) {
+							for(var i = 0; i < vm.msg.length - 1; i++) {
+								for(var j = i + 1; j < vm.msg.length; j++) {
+									if(vm.msg[i].credit > vm.msg[j].credit) {
+										var qwe = vm.msg[i];
+										vm.msg[i] = vm.msg[j];
+										vm.msg[j] = qwe;
+									}
+								}
+							}
+							this.getcurrentData();
+							vm.paixu = 1;
+						} else {
+							for(var i = 0; i < vm.msg.length - 1; i++) {
+								for(var j = i + 1; j < vm.msg.length; j++) {
+									if(vm.msg[i].credit < vm.msg[j].credit) {
+										var qwe = vm.msg[i];
+										vm.msg[i] = vm.msg[j];
+										vm.msg[j] = qwe;
+									}
+								}
+							}
+							this.getcurrentData();
+							vm.paixu = 0;
+						}
+					},
+					/*注销*/
+					remove() {
+						localStorage.removeItem("token");
+						location.href = "login.html";
+					}
+				}
+			})
+		</script>
+	</body>
+
+
+</html>
